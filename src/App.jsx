@@ -67,10 +67,6 @@ const App = () => {
   };
 
   const handleChangeCreateButton = (e, eventData) => {
-    console.log(e);
-    console.log(eventData);
-
-    console.log("create");
     const id = eventData.id;
     const isExistsIndex = state.events.findIndex((el) => el.id === id);
 
@@ -101,7 +97,6 @@ const App = () => {
   };
 
   const handleChangeDeleteEvent = (id, date, endTime) => {
-    console.log("delete");
     const timeNow = new Date().getTime();
     const dateTo = new Date(`${date} ${endTime}`).getTime();
 
@@ -113,7 +108,6 @@ const App = () => {
         "You cen't delene event less than 15 minutes before the start"
       );
     }
-    // ======
 
     const copyEvents = [...state.events];
 
@@ -123,7 +117,7 @@ const App = () => {
       )
     );
   };
-  //============
+
   const handleChangeSwohToday = () => {
     setState({ ...state, date: new Date() });
   };
