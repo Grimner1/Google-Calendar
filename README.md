@@ -2,7 +2,7 @@
 
 Designed for Google Calendar
 
-Еechnology used:
+Technology used:
  - HTML
  - SCSS
  - JS
