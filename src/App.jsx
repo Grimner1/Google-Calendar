@@ -51,8 +51,6 @@ const App = () => {
     setState({ ...state, date: new Date(currentDate) });
   };
 
-  // ========handleChange Modal
-
   const handleChangeShowModal = (startDate, id) => {
     setState({
       ...state,
@@ -69,6 +67,10 @@ const App = () => {
   };
 
   const handleChangeCreateButton = (e, eventData) => {
+    console.log(e);
+    console.log(eventData);
+
+    console.log("create");
     const id = eventData.id;
     const isExistsIndex = state.events.findIndex((el) => el.id === id);
 
@@ -97,12 +99,12 @@ const App = () => {
       );
     }
   };
-  //============
+
   const handleChangeDeleteEvent = (id, date, endTime) => {
-    // ====== валидация на удаление ивента за 15 мсинут до конца
+    console.log("delete");
     const timeNow = new Date().getTime();
     const dateTo = new Date(`${date} ${endTime}`).getTime();
-    console.log((timeNow - dateTo) / 1000 / 60);
+
     if (
       (timeNow - dateTo) / 1000 / 60 > 0 &&
       (timeNow - dateTo) / 1000 / 60 < 15

@@ -3,8 +3,12 @@ const url =
 
 export const getData = (id) =>
   id
-    ? fetch(`${url}/${id}`).then((data) => data.json())
-    : fetch(url).then((data) => data.json());
+    ? fetch(`${url}/${id}`)
+        .then((data) => data.json())
+        .catch((error) => new Error(`${error}: Error on get user data`))
+    : fetch(url)
+        .then((data) => data.json())
+        .catch((error) => new Error(`${error}: Error on get all data`));
 
 export const postData = (event) =>
   fetch(url, {
@@ -13,7 +17,7 @@ export const postData = (event) =>
       "Content-Type": "application/json;charset=utf-8",
     },
     body: JSON.stringify(event),
-  });
+  }).catch((error) => new Error(`${error}: Error on post data`));
 
 export const putData = (id, event) =>
   fetch(`${url}/${id}`, {
@@ -22,9 +26,9 @@ export const putData = (id, event) =>
       "Content-Type": "application/json;charset=utf-8",
     },
     body: JSON.stringify(event),
-  });
+  }).catch((error) => new Error(`${error}: Error on put user data`));
 
-export const deleteData = (id) => fetch(`${url}/${id}`, { method: "DELETE" });
-
-// getData().then((data) => console.log(data));
-// deleteData(1);
+export const deleteData = (id) =>
+  fetch(`${url}/${id}`, { method: "DELETE" }).catch(
+    (error) => new Error(`${error}: Error on delete user data`)
+  );

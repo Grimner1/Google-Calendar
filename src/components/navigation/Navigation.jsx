@@ -1,4 +1,5 @@
 import React from "react";
+import propTypes from "prop-types";
 import ClassNames from "classnames";
 import moment from "moment";
 import "./navigation.scss";
@@ -11,17 +12,15 @@ const Navigation = ({ weekDates }) => {
       {weekDates.map((dayDate, index) => {
         const isToday = () =>
           moment(dayDate).format("LL") === moment(new Date()).format("LL");
-
         const listItemClasses = ClassNames("day-label__day-number", {
           "day-label__today": isToday(),
         });
-        // Create key from index
+
         return (
           <div className="calendar__day-label day-label" key={index}>
             <span className="day-label__day-name">
               {days[dayDate.getDay()]}
             </span>
-            {/* <span className="day-label__day-number">{dayDate.getDate()}</span> */}
             <span className={listItemClasses}>{dayDate.getDate()}</span>
           </div>
         );
@@ -31,3 +30,7 @@ const Navigation = ({ weekDates }) => {
 };
 
 export default Navigation;
+
+Navigation.propTypes = {
+  weekDates: propTypes.array.isRequired,
+};

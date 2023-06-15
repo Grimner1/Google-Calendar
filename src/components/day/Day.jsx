@@ -1,4 +1,5 @@
 import React from "react";
+import propTypes from "prop-types";
 import Hour from "../hour/Hour";
 import { isToday } from "../../utils/dateUtils";
 
@@ -14,7 +15,6 @@ const Day = ({ dataDay, dayEvents, day, handleChangeShowModal }) => {
   return (
     <div className="calendar__day" data-day={dataDay}>
       {hours.map((hour) => {
-        //getting all events from the day we will render
         const hourEvents = dayEvents.filter(
           (event) => new Date(event.dateFrom).getHours() === hour
         );
@@ -36,3 +36,10 @@ const Day = ({ dataDay, dayEvents, day, handleChangeShowModal }) => {
 };
 
 export default Day;
+
+Day.propTypes = {
+  dataDay: propTypes.number,
+  dayEvents: propTypes.array,
+  day: propTypes.instanceOf(Date),
+  handleChangeShowModal: propTypes.func.isRequired,
+};

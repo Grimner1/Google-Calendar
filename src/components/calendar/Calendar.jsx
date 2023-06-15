@@ -1,4 +1,5 @@
 import React from "react";
+import propTypes from "prop-types";
 import Navigation from "./../navigation/Navigation";
 import Week from "../week/Week";
 import Sidebar from "../sidebar/Sidebar";
@@ -24,3 +25,9 @@ const Calendar = ({ weekDates, events, handleChangeShowModal }) => {
 };
 
 export default Calendar;
+
+Calendar.propTypes = {
+  weekDates: propTypes.array.isRequired,
+  events: propTypes.array.isRequired,
+  handleChangeShowModal: propTypes.func.isRequired,
+};

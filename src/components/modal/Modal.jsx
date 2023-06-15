@@ -1,6 +1,7 @@
 import React from "react";
+import { useState, useEffect } from "react";
 import moment from "moment";
-import { ReactPropTypes } from "react";
+import propTypes from "prop-types";
 
 import "./modal.scss";
 
@@ -10,39 +11,37 @@ const Modal = ({
   event,
   handleChangeDeleteEvent,
 }) => {
-  //============== start Date
   const { id, title, description, date, startTime, endTime } = event;
-  //=============
 
-  const prepearDelete = (id) => {
+  const prepearDelete = (event, id) => {
+    event.preventDefault();
     handleChangeDeleteEvent(id, date, endTime);
   };
 
   const sendEventData = (event) => {
     event.preventDefault();
-
-    handleChangeCreateButton(event, getEventData(event));
+    const formFields = document.getElementsByClassName("event-form");
+    handleChangeCreateButton(event, getEventData(formFields[0]));
   };
 
   const getEventData = (event) => {
-    const newEvent = new FormData(event.target);
+    const newEvent = new FormData(event);
     const date = moment(newEvent.get("date")).format("YYYY MM DD");
     const eventData = {
       id: id,
-      //  ? id : Math.random(),
       title: newEvent.get("title"),
       description: newEvent.get("description"),
       dateFrom: new Date(`${date} ${newEvent.get("startTime")}`).getTime(),
       dateTo: new Date(`${date} ${newEvent.get("endTime")}`).getTime(),
     };
-    // ===== валидация на длительность не больше 6-ти часов
+
     const durationEvent =
       (eventData.dateTo - eventData.dateFrom) / 1000 / 60 / 60;
 
     if (durationEvent > 6) {
       return alert("The duration of the event must not be more than 6 hours");
     }
-    // ===== валидация на 15 мин
+
     const minStart = moment(eventData.dateFrom).format("mm");
     const minEnd = moment(eventData.dateTo).format("mm");
 
@@ -56,10 +55,10 @@ const Modal = ({
       return eventData;
     }
 
-    // =====
-
     alert("Please, enter min 00, 15, 30 or 45");
   };
+
+  console.log(state);
 
   return (
     <div className="modal overlay">
@@ -71,7 +70,7 @@ const Modal = ({
           >
             +
           </button>
-          <form className="event-form" onSubmit={sendEventData}>
+          <form className="event-form">
             <input
               type="text"
               name="title"
@@ -114,8 +113,7 @@ const Modal = ({
               {id && (
                 <button
                   className="event-form__delete-btn"
-                  // onClick={() => handleChangeDeleteEvent(id)}
-                  onClick={() => prepearDelete(id)}
+                  onClick={(e) => prepearDelete(e, id)}
                 >
                   Delete
                 </button>
@@ -125,7 +123,7 @@ const Modal = ({
                 <button
                   type="submit"
                   className="event-form__submit-btn"
-                  // onSubmit={sendEventData}
+                  onClick={sendEventData}
                 >
                   Save
                 </button>
@@ -133,21 +131,13 @@ const Modal = ({
                 <button
                   type="submit"
                   className="event-form__submit-btn"
-                  // onSubmit={sendEventData}
+                  onClick={sendEventData}
                 >
                   Create
                 </button>
               )}
             </div>
           </form>
-          {/* {id && (
-            <button
-              className="event-form__delete-btn"
-              onClick={() => handleChangeDeleteEvent(id)}
-            >
-              Delete
-            </button>
-          )} */}
         </div>
       </div>
     </div>
@@ -156,9 +146,9 @@ const Modal = ({
 
 export default Modal;
 
-// Modal.propTypes = {
-//   handleChangeHideModal: PropTypes.func.isRequired,
-//   handleChangeCreateButton: PropTypes.func.isRequired,
-//   event: PropTypes.array.isRequired,
-//   handleChangeDeleteEvent: PropTypes.func.isRequired,
-// };
+Modal.propTypes = {
+  handleChangeHideModal: propTypes.func.isRequired,
+  handleChangeCreateButton: propTypes.func.isRequired,
+  event: propTypes.object.isRequired,
+  handleChangeDeleteEvent: propTypes.func.isRequired,
+};

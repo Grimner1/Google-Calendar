@@ -1,4 +1,5 @@
 import React from "react";
+import propTypes from "prop-types";
 
 import "./event.scss";
 
@@ -22,3 +23,12 @@ const Event = ({ height, marginTop, title, time, id, openExistsModal }) => {
 };
 
 export default Event;
+
+Event.propTypes = {
+  height: propTypes.number,
+  marginTop: propTypes.number,
+  title: propTypes.string,
+  time: propTypes.string,
+  id: propTypes.string,
+  openExistsModal: propTypes.func,
+};

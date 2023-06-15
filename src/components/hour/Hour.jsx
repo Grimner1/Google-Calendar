@@ -1,6 +1,7 @@
 import React from "react";
 import moment from "moment";
 import Event from "../event/Event";
+import propTypes from "prop-types";
 import { formatMins } from "../../../src/utils/dateUtils.js";
 
 const Hour = ({
@@ -10,7 +11,7 @@ const Hour = ({
   handleChangeShowModal,
   presentDay,
 }) => {
-  const top = new Date().getMinutes(); // I add style for red line
+  const top = new Date().getMinutes();
 
   const openModal = (e) => {
     const x = e.target.closest(".event");
@@ -21,7 +22,6 @@ const Hour = ({
       const time = `${e.target.dataset.time - 1}:00`;
       const date = moment(presentDay).format("YYYY MM DD");
       const startDate = new Date(`${date} ${time}`);
-
       handleChangeShowModal(startDate);
     }
   };
@@ -32,9 +32,8 @@ const Hour = ({
       data-time={dataHour + 1}
       onClick={openModal}
     >
-      {/*add red line*/}
       {isTimeNow && <span className="red-line" style={{ top: top }}></span>}
-      {/* if no events in the current hour nothing will render here */}
+
       {hourEvents.map(({ id, dateFrom, dateTo, title }) => {
         const eventStart = `${new Date(dateFrom).getHours()}:${formatMins(
           new Date(dateFrom).getMinutes()
@@ -46,7 +45,6 @@ const Hour = ({
         return (
           <Event
             key={id}
-            //calculating event height = duration of event in minutes
             height={
               (new Date(dateTo).getTime() - new Date(dateFrom).getTime()) /
               (1000 * 60)
@@ -64,3 +62,11 @@ const Hour = ({
 };
 
 export default Hour;
+
+Hour.propTypes = {
+  dataHour: propTypes.number.isRequired,
+  hourEvents: propTypes.array,
+  isTimeNow: propTypes.bool.isRequired,
+  handleChangeShowModal: propTypes.func.isRequired,
+  presentDay: propTypes.instanceOf(Date).isRequired,
+};
