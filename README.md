@@ -17,4 +17,4 @@ Development version:
  - After loading all information, write in terminal: 'npm start';
 
 Production version uploaded on https://netlify.com
-link to production version: https://stately-gaufre-68953d.netlify.app/
+Link to production version: https://stately-gaufre-68953d.netlify.app/
