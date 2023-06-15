@@ -58,8 +58,6 @@ const Modal = ({
     alert("Please, enter min 00, 15, 30 or 45");
   };
 
-  console.log(state);
-
   return (
     <div className="modal overlay">
       <div className="modal__content">
