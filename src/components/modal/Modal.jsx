@@ -1,5 +1,4 @@
 import React from "react";
-import { useState, useEffect } from "react";
 import moment from "moment";
 import propTypes from "prop-types";
 

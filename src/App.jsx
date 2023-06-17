@@ -10,10 +10,7 @@ import {
 import Header from "./components/header/Header.jsx";
 import Calendar from "./components/calendar/Calendar.jsx";
 import Modal from "./components/modal/Modal.jsx";
-import {
-  setEventForModal,
-  validationForNewEvent,
-} from "../Validation/validation.js";
+import { setEventForModal, validationForNewEvent } from "./validation.js";
 import { getWeekStartDate, generateWeekRange } from "../src/utils/dateUtils.js";
 
 import "./common.scss";

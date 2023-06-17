@@ -45,8 +45,6 @@ export const validationForNewEvent = (dateFrom, dateTo, events) => {
   const dayEvent = events.filter(
     (event) => event.dateFrom > dayStart && event.dateTo < dayEnd
   );
-  //мы получили ивенты на день
-  //проверяем, нет ли пересечения по времени
   let crossing = false;
   const isTimeCrossing = dayEvent.forEach((event) => {
     const x =
