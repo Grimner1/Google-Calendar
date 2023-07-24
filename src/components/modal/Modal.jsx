@@ -1,33 +1,121 @@
 import React from "react";
+import { useState, useEffect } from "react";
 import moment from "moment";
 import propTypes from "prop-types";
 
 import "./modal.scss";
 
-const Modal = ({
-  handleChangeHideModal,
-  handleChangeCreateButton,
-  event,
-  handleChangeDeleteEvent,
-}) => {
-  const { id, title, description, date, startTime, endTime } = event;
+import {
+  postDataToServer,
+  putDataToServer,
+  deleteDataFromServer,
+} from "../../gateway/DataGetway";
 
-  const prepearDelete = (event, id) => {
-    event.preventDefault();
-    handleChangeDeleteEvent(id, date, endTime);
+const Modal = ({ handleChangeHideModal, startDataForModalInput, events }) => {
+  const [inputData, setInputData] = useState({
+    idField: "",
+    titleField: "",
+    descriptionField: "",
+    dateField: "",
+    startTimeField: "",
+    endTimeField: "",
+  });
+
+  const { eventId, startDataForNewEvent } = startDataForModalInput;
+
+  useEffect(() => {
+    setInputData(startDateForInput());
+  }, []);
+
+  const startDateForInput = () => {
+    const event = {
+      idField: "",
+      titleField: "",
+      descriptionField: "",
+      dateField: "",
+      startTimeField: "",
+      endTimeField: "",
+    };
+
+    if (!isNaN(Date.parse(startDataForNewEvent))) {
+      event.dateField = moment(startDataForNewEvent).format("YYYY-MM-DD");
+      event.startTimeField = moment(startDataForNewEvent).format("HH:mm");
+
+      return event;
+    } else if (eventId) {
+      const findEvent = events.filter((event) => event.id == eventId);
+      const event = findEvent[0];
+
+      event.idField = event.id;
+      event.titleField = event.title;
+      event.descriptionField = event.description;
+      event.dateField = moment(event.dateFrom).format("YYYY-MM-DD");
+      event.startTimeField = moment(event.dateFrom).format("HH:mm");
+      event.endTimeField = moment(event.dateTo).format("HH:mm");
+
+      return event;
+    } else {
+      return event;
+    }
   };
 
-  const sendEventData = (event) => {
+  const handleChangeSendInputFieldsData = (event) => {
     event.preventDefault();
+
     const formFields = document.getElementsByClassName("event-form");
-    handleChangeCreateButton(event, getEventData(formFields[0]));
+
+    const inputsData = getEventData(formFields[0]);
+
+    if (inputsData == undefined) {
+      return;
+    }
+
+    const isExistsIndex = events.findIndex((el) => el.id === inputsData.id);
+
+    if (isExistsIndex === -1) {
+      if (
+        validationForNewEventCrossingDate(
+          inputsData.dateFrom,
+          inputsData.dateTo,
+          events
+        )
+      ) {
+        alert("Please, enter correctly time data");
+        return;
+      }
+
+      postDataToServer(inputsData).then(() => handleChangeHideModal());
+    } else {
+      putDataToServer(inputData.idField, inputsData).then(() =>
+        handleChangeHideModal()
+      );
+    }
+  };
+
+  const handleChangeDeleteEvent = (event) => {
+    event.preventDefault();
+    const timeNow = new Date().getTime();
+    const dateTo = new Date(
+      `${inputData.dateField} ${inputData.endTimeField}`
+    ).getTime();
+
+    if (
+      (timeNow - dateTo) / 1000 / 60 > 0 &&
+      (timeNow - dateTo) / 1000 / 60 < 15
+    ) {
+      return alert(
+        "You cen't delete event less than 15 minutes before the start"
+      );
+    }
+
+    deleteDataFromServer(inputData.idField).then(() => handleChangeHideModal());
   };
 
   const getEventData = (event) => {
     const newEvent = new FormData(event);
     const date = moment(newEvent.get("date")).format("YYYY MM DD");
     const eventData = {
-      id: id,
+      id: inputData.idField,
       title: newEvent.get("title"),
       description: newEvent.get("description"),
       dateFrom: new Date(`${date} ${newEvent.get("startTime")}`).getTime(),
@@ -52,9 +140,36 @@ const Modal = ({
       (minEnd == "00" || minEnd == "15" || minEnd == "30" || minEnd == "45")
     ) {
       return eventData;
+    } else {
+      return alert("Please, enter min 00, 15, 30 or 45");
+    }
+  };
+
+  const validationForNewEventCrossingDate = (dateFrom, dateTo, events) => {
+    if (dateFrom > dateTo) {
+      return true;
     }
 
-    alert("Please, enter min 00, 15, 30 or 45");
+    const dayStart = new Date(moment(new Date(dateFrom)).format("YYYY.MM.DD"));
+    const dayEnd = new Date(dayStart.getTime()).setHours(
+      dayStart.getHours() + 24
+    );
+
+    const dayEvent = events.filter(
+      (event) => event.dateFrom > dayStart && event.dateTo < dayEnd
+    );
+
+    let crossing = false;
+    const isTimeCrossing = dayEvent.forEach((event) => {
+      const x =
+        (dateFrom < event.dateFrom && dateTo < event.dateFrom) ||
+        (dateFrom > event.dateTo && dateTo > event.dateTo);
+      console.log(!x);
+      if (!x) {
+        crossing = true;
+      }
+    });
+    return crossing;
   };
 
   return (
@@ -74,7 +189,7 @@ const Modal = ({
               placeholder="Title"
               className="event-form__field"
               required
-              defaultValue={title}
+              defaultValue={inputData.titleField}
             />
             <div className="event-form__time">
               <input
@@ -82,14 +197,14 @@ const Modal = ({
                 name="date"
                 className="event-form__field"
                 required
-                defaultValue={date}
+                defaultValue={inputData.dateField}
               />
               <input
                 type="time"
                 name="startTime"
                 className="event-form__field"
                 required
-                defaultValue={startTime}
+                defaultValue={inputData.startTimeField}
               />
               <span>-</span>
               <input
@@ -97,30 +212,30 @@ const Modal = ({
                 name="endTime"
                 className="event-form__field"
                 required
-                defaultValue={endTime}
+                defaultValue={inputData.endTimeField}
               />
             </div>
             <textarea
               name="description"
               placeholder="Description"
               className="event-form__field"
-              defaultValue={description}
+              defaultValue={inputData.descriptionField}
             ></textarea>
             <div className="event-form__event_btns">
-              {id && (
+              {inputData.idField && (
                 <button
                   className="event-form__delete-btn"
-                  onClick={(e) => prepearDelete(e, id)}
+                  onClick={handleChangeDeleteEvent}
                 >
                   Delete
                 </button>
               )}
 
-              {id ? (
+              {inputData.idField ? (
                 <button
                   type="submit"
                   className="event-form__submit-btn"
-                  onClick={sendEventData}
+                  onClick={handleChangeSendInputFieldsData}
                 >
                   Save
                 </button>
@@ -128,7 +243,7 @@ const Modal = ({
                 <button
                   type="submit"
                   className="event-form__submit-btn"
-                  onClick={sendEventData}
+                  onClick={handleChangeSendInputFieldsData}
                 >
                   Create
                 </button>
@@ -145,7 +260,6 @@ export default Modal;
 
 Modal.propTypes = {
   handleChangeHideModal: propTypes.func.isRequired,
-  handleChangeCreateButton: propTypes.func.isRequired,
-  event: propTypes.object.isRequired,
-  handleChangeDeleteEvent: propTypes.func.isRequired,
+  startDataForModalInput: propTypes.object.isRequired,
+  events: propTypes.array.isRequired,
 };

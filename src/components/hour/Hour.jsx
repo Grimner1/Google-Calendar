@@ -14,9 +14,9 @@ const Hour = ({
   const top = new Date().getMinutes();
 
   const openModal = (e) => {
-    const x = e.target.closest(".event");
-    if (x) {
-      const id = x.dataset.id;
+    const event = e.target.closest(".event");
+    if (event) {
+      const id = event.dataset.id;
       handleChangeShowModal(null, id);
     } else {
       const time = `${e.target.dataset.time - 1}:00`;

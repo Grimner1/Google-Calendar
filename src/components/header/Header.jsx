@@ -6,9 +6,10 @@ import "./header.scss";
 
 const Header = ({
   weekDates,
-  changeWeek,
+  handleChangeWeekOneAhead,
+  handleChangeWeekOneBack,
   handleChangeShowModal,
-  handleChangeSwohToday,
+  handleChangeShowToday,
 }) => {
   const weekStartMonth = months[weekDates[0].getMonth()];
   const weekEndMonth = months[weekDates[6].getMonth()];
@@ -32,19 +33,19 @@ const Header = ({
       <div className="navigation">
         <button
           className="navigation__today-btn button"
-          onClick={handleChangeSwohToday}
+          onClick={handleChangeShowToday}
         >
           Today
         </button>
         <button
           className="icon-button navigation__nav-icon"
-          onClick={(e) => changeWeek(e, false)}
+          onClick={handleChangeWeekOneBack}
         >
           <i className="fas fa-chevron-left"></i>
         </button>
         <button
           className="icon-button navigation__nav-icon"
-          onClick={(e) => changeWeek(e, true)}
+          onClick={handleChangeWeekOneAhead}
         >
           <i className="fas fa-chevron-right"></i>
         </button>
@@ -58,7 +59,8 @@ export default Header;
 
 Header.propTypes = {
   weekDates: propTypes.array.isRequired,
-  changeWeek: propTypes.func.isRequired,
+  handleChangeWeekOneAhead: propTypes.func.isRequired,
+  handleChangeWeekOneBack: propTypes.func.isRequired,
   handleChangeShowModal: propTypes.func.isRequired,
-  handleChangeSwohToday: propTypes.func.isRequired,
+  handleChangeShowToday: propTypes.func.isRequired,
 };

@@ -1,16 +1,9 @@
 import React from "react";
 import { useState, useEffect } from "react";
-
-import {
-  getData,
-  postData,
-  putData,
-  deleteData,
-} from "./gateway/DataGetway.js";
+import { getDataFromServer } from "./gateway/DataGetway.js";
 import Header from "./components/header/Header.jsx";
 import Calendar from "./components/calendar/Calendar.jsx";
 import Modal from "./components/modal/Modal.jsx";
-import { setEventForModal, validationForNewEvent } from "./validation.js";
 import { getWeekStartDate, generateWeekRange } from "../src/utils/dateUtils.js";
 
 import "./common.scss";
@@ -20,31 +13,27 @@ const App = () => {
     date: new Date(),
     events: [],
     showModal: false,
-    event: {
-      id: "",
-      title: "",
-      description: "",
-      date: "",
-      startTime: "",
-      endTime: "",
+    startDataForModalInput: {
+      eventId: null,
+      startDataForNewEvent: null,
     },
   });
 
   useEffect(() => {
-    getData().then((data) => setState({ ...state, events: data }));
-  }, []);
+    getDataFromServer().then((data) => setState({ ...state, events: data }));
+  }, [state.showModal]);
 
   const weekDates = generateWeekRange(getWeekStartDate(state.date));
 
-  const changeWeek = (e, direction) => {
+  const handleChangeWeekOneAhead = () => {
     const currentDate = new Date(state.date);
+    currentDate.setDate(currentDate.getDate() + 7);
+    setState({ ...state, date: new Date(currentDate) });
+  };
 
-    if (direction) {
-      currentDate.setDate(currentDate.getDate() + 7);
-    } else {
-      currentDate.setDate(currentDate.getDate() - 7);
-    }
-
+  const handleChangeWeekOneBack = () => {
+    const currentDate = new Date(state.date);
+    currentDate.setDate(currentDate.getDate() - 7);
     setState({ ...state, date: new Date(currentDate) });
   };
 
@@ -52,7 +41,10 @@ const App = () => {
     setState({
       ...state,
       showModal: true,
-      event: setEventForModal(startDate, id, state.events),
+      startDataForModalInput: {
+        eventId: id,
+        startDataForNewEvent: startDate,
+      },
     });
   };
 
@@ -63,59 +55,7 @@ const App = () => {
     });
   };
 
-  const handleChangeCreateButton = (e, eventData) => {
-    const id = eventData.id;
-    const isExistsIndex = state.events.findIndex((el) => el.id === id);
-
-    if (isExistsIndex === -1) {
-      if (
-        validationForNewEvent(
-          eventData.dateFrom,
-          eventData.dateTo,
-          state.events
-        )
-      ) {
-        alert("Please, enter correctly time data");
-        return;
-      }
-
-      postData(eventData).then(() =>
-        getData().then((data) =>
-          setState({ ...state, events: data, showModal: false })
-        )
-      );
-    } else {
-      putData(id, eventData).then(() =>
-        getData().then((data) =>
-          setState({ ...state, events: data, showModal: false })
-        )
-      );
-    }
-  };
-
-  const handleChangeDeleteEvent = (id, date, endTime) => {
-    const timeNow = new Date().getTime();
-    const dateTo = new Date(`${date} ${endTime}`).getTime();
-
-    if (
-      (timeNow - dateTo) / 1000 / 60 > 0 &&
-      (timeNow - dateTo) / 1000 / 60 < 15
-    ) {
-      return alert(
-        "You cen't delene event less than 15 minutes before the start"
-      );
-    }
-
-    const copyEvents = [...state.events];
-
-    deleteData(id).then(() =>
-      getData().then((data) =>
-        setState({ ...state, events: data, showModal: false })
-      )
-    );
-  };
-
-  const handleChangeSwohToday = () => {
+  const handleChangeShowToday = () => {
     setState({ ...state, date: new Date() });
   };
 
@@ -123,9 +63,10 @@ const App = () => {
     <>
       <Header
         weekDates={weekDates}
-        changeWeek={changeWeek}
+        handleChangeWeekOneAhead={handleChangeWeekOneAhead}
+        handleChangeWeekOneBack={handleChangeWeekOneBack}
         handleChangeShowModal={handleChangeShowModal}
-        handleChangeSwohToday={handleChangeSwohToday}
+        handleChangeShowToday={handleChangeShowToday}
       />
       <Calendar
         weekDates={weekDates}
@@ -135,9 +76,8 @@ const App = () => {
       {state.showModal && (
         <Modal
           handleChangeHideModal={handleChangeHideModal}
-          handleChangeCreateButton={handleChangeCreateButton}
-          event={state.event}
-          handleChangeDeleteEvent={handleChangeDeleteEvent}
+          startDataForModalInput={state.startDataForModalInput}
+          events={state.events}
         />
       )}
     </>
